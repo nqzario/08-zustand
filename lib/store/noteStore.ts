@@ -2,9 +2,9 @@ import type { NoteDraft } from "@/types/note";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-interface Draft {
+interface DraftState {
   draft: NoteDraft;
-  setDraft: (draft: NoteDraft) => void;
+  setDraft: (draft: Partial<NoteDraft>) => void;
   clearDraft: () => void;
 }
 
@@ -14,13 +14,19 @@ const initialDraft: NoteDraft = {
   tag: "Todo",
 };
 
-export const useDraftNote = create<Draft>()(
+export const useDraftNote = create<DraftState>()(
   persist(
     (set) => ({
       draft: initialDraft,
-      setDraft: (draft: NoteDraft) => set({ draft }),
+      setDraft: (draft) =>
+        set((state) => ({
+          draft: { ...state.draft, ...draft },
+        })),
       clearDraft: () => set({ draft: initialDraft }),
     }),
-    { name: "draft", partialize: (state) => ({ draft: state.draft }) }
+    {
+      name: "note-draft",
+      partialize: (state) => ({ draft: state.draft }),
+    }
   )
 );

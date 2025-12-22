@@ -1,102 +1,65 @@
 "use client";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import css from "./NoteForm.module.css";
-import { createNote } from "@/lib/api";
-import toast from "react-hot-toast";
-import { useRouter } from "next/navigation";
-import { useDraftNote } from "@/lib/store/noteStore";
-import { ChangeEvent } from "react";
 
-type CreateNote = {
-  title: string;
-  content: string;
-  tag: "Todo" | "Work" | "Personal" | "Meeting" | "Shopping";
+import { ChangeEvent } from "react";
+import { useRouter } from "next/navigation";
+import css from "./NoteForm.module.css";
+import { useDraftNote } from "@/lib/store/noteStore";
+import type { NoteDraft } from "@/types/note";
+
+type NoteFormProps = {
+  formAction: (formData: FormData) => void;
 };
 
-const NoteForm = () => {
+const NoteForm = ({ formAction }: NoteFormProps) => {
   const router = useRouter();
-  const queryClient = useQueryClient();
-  const { setDraft, clearDraft, draft } = useDraftNote();
-  const mutation = useMutation({
-    mutationFn: (newTask: CreateNote) => createNote(newTask),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["notes"] });
-      toast.success("You have successfully created a new note!");
-      clearDraft();
-      router.push("/notes/filter/All");
-      //для того щоб нотатки обновились
-    },
-    onError: () => {
-      toast.error("Something went wrong...try again.");
-    },
-  });
+  const { draft, setDraft } = useDraftNote();
 
-  const handleSubmit = (formData: FormData) => {
-    const data = Object.fromEntries(formData) as unknown as CreateNote;
-    if (data) {
-      mutation.mutate({
-        title: data.title,
-        content: data.content,
-        tag: data.tag,
-      });
-    }
-  };
-
-  const handleCancel = () => {
-    router.push("/notes/filter/All");
-  };
-
-  const createDraft = (
+  const handleChange = (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
-    const value = e.target.value;
-    const name = e.target.name;
+    const { name, value } = e.target;
+
     setDraft({
-      ...draft,
       [name]: value,
-    });
+    } as Partial<NoteDraft>);
   };
 
   return (
-    <form
-      className={css.form}
-      onSubmit={(e) => {
-        e.preventDefault();
-        handleSubmit(new FormData(e.currentTarget));
-      }}
-    >
+    <form className={css.form} action={formAction}>
       <div className={css.formGroup}>
         <label htmlFor="title">Title</label>
         <input
-          value={draft?.title ?? ""}
           id="title"
-          type="text"
           name="title"
+          type="text"
           className={css.input}
-          onChange={createDraft}
+          value={draft.title}
+          onChange={handleChange}
+          required
         />
       </div>
 
       <div className={css.formGroup}>
         <label htmlFor="content">Content</label>
         <textarea
-          value={draft?.content ?? ""}
-          onChange={createDraft}
           id="content"
           name="content"
           className={css.textarea}
           rows={8}
+          value={draft.content}
+          onChange={handleChange}
+          required
         />
       </div>
 
       <div className={css.formGroup}>
         <label htmlFor="tag">Tag</label>
         <select
-          value={draft?.tag ?? ""}
           id="tag"
           name="tag"
           className={css.select}
-          onChange={createDraft}
+          value={draft.tag}
+          onChange={handleChange}
         >
           <option value="Todo">Todo</option>
           <option value="Work">Work</option>
@@ -110,11 +73,11 @@ const NoteForm = () => {
         <button
           type="button"
           className={css.cancelButton}
-          onClick={handleCancel}
+          onClick={() => router.back()}
         >
           Cancel
         </button>
-        <button type="submit" className={css.submitButton} disabled={false}>
+        <button type="submit" className={css.submitButton}>
           Create note
         </button>
       </div>
