@@ -15,7 +15,7 @@ export async function generateMetadata({
   params,
 }: NotesPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const tag = slug[0] == "All" ? "All" : slug[0];
+  const tag = slug[0] == "all" ? "all" : slug[0];
   return {
     title: `${tag} Notes`,
     description: `Перегляньте нотатки, відфільтровані за ${tag}`,
@@ -36,7 +36,7 @@ export async function generateMetadata({
 
 const NotesPage = async ({ params }: NotesPageProps) => {
   const { slug } = await params;
-  const tag = slug[0] == "All" ? undefined : slug[0];
+  const tag = slug[0] == "all" ? undefined : slug[0];
   const queryClient = new QueryClient();
   const query = "";
   const currentPage = 1;

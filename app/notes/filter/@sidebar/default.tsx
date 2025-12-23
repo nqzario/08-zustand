@@ -6,7 +6,7 @@ const SideBar = () => {
   return (
     <ul className={css.menuList}>
       <li className={css.menuItem}>
-        <Link className={css.menuLink} href="/notes/filter/All">
+        <Link className={css.menuLink} href="/notes/filter/all">
           All Notes
         </Link>
       </li>
