@@ -25,9 +25,9 @@ export const metadata: Metadata = {
 
 const Layout = ({ children, sidebar }: LayoutProps) => {
   return (
-    <div>
+    <div style={{ display: "flex", alignItems: "flex-start" }}>
       {sidebar}
-      {children}
+      <main style={{ flex: 1 }}>{children}</main>
     </div>
   );
 };
